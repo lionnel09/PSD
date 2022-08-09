@@ -11,6 +11,9 @@ public class Data {
     private int n; // number of records
     private List<Point2D> points; // points used to build the tree
 
+    /**
+     * default constructor
+     */
     public Data() {
     }
 
@@ -46,6 +49,9 @@ public class Data {
         this.points = points;
     }
 
+    /**
+     * @return formatted string of data
+     */
     @Override
     public String toString() {
         return "Data{" +

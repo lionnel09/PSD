@@ -6,7 +6,7 @@ public class RectangularHalfPlane {
     private double minX, minY, maxX, maxY;
 
     /**
-     * Returns half plane's boundaries as string
+     * Returns half plane's ranges as string
      * @return Formatted String
      */
     public String toString() {
@@ -15,9 +15,9 @@ public class RectangularHalfPlane {
 
     /**
      * Constructor.
-     * @param minX Leftmost bound
+     * @param minX Left bound
      * @param minY Bottom bound
-     * @param maxX Rightmost bound
+     * @param maxX Right bound
      * @param maxY Top bound
      */
     public RectangularHalfPlane(double minX, double minY, double maxX, double maxY) {
@@ -28,19 +28,12 @@ public class RectangularHalfPlane {
     }
 
     /**
-     * Default constructor. Constructs half plane with possible largest boundaries.
+     * default constructor
      */
     public RectangularHalfPlane() {
         this.minX = -Double.MAX_VALUE;
         this.minY = -Double.MAX_VALUE;
         this.maxX = Double.MAX_VALUE;
-        this.maxY = Double.MAX_VALUE;
-    }
-
-    public RectangularHalfPlane(double minX , double maxX) {
-        this.minX = minX;
-        this.minY = -Double.MAX_VALUE;
-        this.maxX = maxX;
         this.maxY = Double.MAX_VALUE;
     }
 

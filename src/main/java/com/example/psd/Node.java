@@ -14,8 +14,11 @@ public class Node {
     private Node parent;
 
     //defines data into node
-    private NodeData nodeData;
+    private final NodeData nodeData;
 
+    /**
+     * default constructor
+     */
     public Node() {
         this.leftChild = null;
         this.rightChild = null;
@@ -23,22 +26,18 @@ public class Node {
         this.nodeData = null;
     }
 
-    public Node(NodeData nodeData) {
-        this();
-        this.nodeData = nodeData;
-    }
-
+    /**
+     * constructor
+     * @param leftChild left-child
+     * @param rightChild right-child
+     * @param parent parent
+     * @param nodeData data into node
+     */
     public Node(Node leftChild, Node rightChild, Node parent, NodeData nodeData) {
         this.leftChild = leftChild;
         this.rightChild = rightChild;
         this.parent = parent;
         this.nodeData = nodeData;
-    }
-
-    public Node(Node leftChild, Node rightChild, NodeData nodeData) {
-        this(nodeData);
-        this.leftChild = leftChild;
-        this.rightChild = rightChild;
     }
 
     public Node getLeftChild() {
@@ -61,20 +60,12 @@ public class Node {
         this.rightChild = rightChild;
     }
 
-    public Node getParent() {
-        return parent;
-    }
-
     public void setParent(Node parent) {
         this.parent = parent;
     }
 
     public NodeData getNodeData() {
         return nodeData;
-    }
-
-    public void setNodeData(NodeData nodeData) {
-        this.nodeData = nodeData;
     }
 
     public boolean equals(Object o) {
@@ -84,16 +75,24 @@ public class Node {
         return false;
     }
 
+    /**
+     * @return depth count
+     */
     int count() {
         return 1 + (leftChild != null ? leftChild.count() : 0) + (rightChild != null ? rightChild.count() : 0);
     }
 
-
+    /**
+     * @param depth depth
+     * @return Formatted string of point
+     */
     private String depthToStr(int depth) {
         return ". ".repeat(Math.max(0, depth));
     }
 
-
+    /**
+     * @return Formatted String to save in saving file
+     */
     @Override
     public String toString() {
         Cut direction = nodeData.getDirection();

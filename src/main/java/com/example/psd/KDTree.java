@@ -52,7 +52,7 @@ public class KDTree {
 
 
         int medianIndex = points.size() / 2;
-        node = new Node(null, null, new NodeData(currentCut, points.get(medianIndex), depth));
+        node = new Node(null, null,null, new NodeData(currentCut, points.get(medianIndex), depth));
 
         //Process list to see where each non-median point lies
         int bound = points.size();
@@ -419,13 +419,13 @@ public class KDTree {
             }
 
             if (range.contains(root.getNodeData().getLeftRegion())) { // Left subTree is fully contained into range, print all points.
-                depthFirstPrint(root.getLeftChild());
+                preOrderNodePrinter(root.getLeftChild());
             } else if (range.intersects(root.getNodeData().getLeftRegion())) { // Continue searching
                 Search2DTree(root.getLeftChild(), range);
             }
 
             if (range.contains(root.getNodeData().getRightRegion())) { // Right subTree is fully contained into range, print all points.
-                depthFirstPrint(root.getRightChild());
+                preOrderNodePrinter(root.getRightChild());
             } else if (range.intersects(root.getNodeData().getRightRegion())) { // Continue searching
                 Search2DTree(root.getRightChild(), range);
             }
@@ -436,12 +436,11 @@ public class KDTree {
      * preOrder writing node if subtree is fully contained
      * @param root defines the root of tree of subTree
      */
-    private void depthFirstPrint(Node root) {
+    private void preOrderNodePrinter(Node root) {
         if(root == null) return;
-
         out.println(root.getNodeData().pointFormatter() + "\n");
-        depthFirstPrint(root.getLeftChild());
-        depthFirstPrint(root.getRightChild());
+        preOrderNodePrinter(root.getLeftChild());
+        preOrderNodePrinter(root.getRightChild());
 
     }
 

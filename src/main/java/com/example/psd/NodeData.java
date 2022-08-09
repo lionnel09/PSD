@@ -15,6 +15,12 @@ public class NodeData {
     // depth of the node into tree
     private final int depth;
 
+    /**
+     * constructor
+     * @param direction cut's direction
+     * @param point point
+     * @param depth depth
+     */
     public NodeData(Cut direction, Point2D point, int depth) {
         this.direction = direction;
         this.point = point;
@@ -59,11 +65,18 @@ public class NodeData {
         return depth;
     }
 
+    /**
+     * @return Formatted String with cut direction
+     */
     @Override
     public String toString() {
 
         return String.format("(%s,%s) : %s", point.getX(), point.getY(),direction);
     }
+
+    /**
+     * @return Formatted String without cut direction
+     */
     public String pointFormatter(){
         return String.format("(%s, %s)", point.getX(), point.getY());
     }

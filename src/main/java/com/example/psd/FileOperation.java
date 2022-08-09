@@ -9,7 +9,10 @@ import java.util.regex.Pattern;
 
 public class FileOperation {
 
+    //temp list
     private List<String> list ;
+
+    //separator depending on system
     private final String separator = File.separator;
 
     /**
