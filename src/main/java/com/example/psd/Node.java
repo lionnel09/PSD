@@ -4,12 +4,16 @@ import java.awt.geom.Point2D;
 
 public class Node {
 
+    //defines left-child node
     private Node leftChild;
 
+    //defines right-child node
     private Node rightChild;
 
+    //defines parent node
     private Node parent;
 
+    //defines data into node
     private NodeData nodeData;
 
     public Node() {
@@ -89,15 +93,16 @@ public class Node {
         return ". ".repeat(Math.max(0, depth));
     }
 
+
     @Override
     public String toString() {
-        Direction direction = nodeData.getDirection();
+        Cut direction = nodeData.getDirection();
         Point2D pointIntersecting = nodeData.getPoint();
         int depth = nodeData.getDepth();
-        if (direction == Direction.Leaf) {
+        if (direction == Cut.Leaf) {
             return String.format("%s(%s: (%s, %s))", depthToStr(depth), direction, pointIntersecting.getX(), pointIntersecting.getY());
         } else { // Vertical or Horizontal cut
-            return String.format("%s(%s: (%s))", depthToStr(depth), direction, direction == Direction.Vertical ?  nodeData.pointFormatter() :  nodeData.pointFormatter());
+            return String.format("%s(%s: (%s))", depthToStr(depth), direction, nodeData.pointFormatter());
         }
 
     }

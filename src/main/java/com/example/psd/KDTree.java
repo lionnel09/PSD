@@ -7,18 +7,27 @@ import java.util.List;
 
 import static java.lang.System.out;
 
+/**
+ * class that implements all method use to interact with the tree
+ */
 public class KDTree {
 
 
-
+    // root of tree
     private Node root;
 
     public KDTree() {
     }
 
+    /**
+     * internal method to build a 2DTree
+     * @param points points using to construct tree
+     * @param depth is the depth for the current node
+     * @return a 2DTree
+     */
     private Node innerTreeBuilder(List<Point2D> points, int depth) {
 
-        Direction currentDirection;
+        Cut currentCut;
         Node node;
 
 
@@ -29,21 +38,21 @@ public class KDTree {
 
 
 
-        if (depth % 2 == 0) {
-            currentDirection = Direction.Vertical;
+        if (even(depth)) {
+            currentCut = Cut.Vertical;
             points.sort(Comparator.comparing(Point2D::getX));
 
         } else {
-            currentDirection = Direction.Horizontal;
+            currentCut = Cut.Horizontal;
             points.sort(Comparator.comparing(Point2D::getY));
         }
         if (points.size() == 1) {
-            currentDirection = Direction.Leaf;
+            currentCut = Cut.Leaf;
         }
 
 
         int medianIndex = points.size() / 2;
-        node = new Node(null, null, new NodeData(currentDirection, points.get(medianIndex), depth));
+        node = new Node(null, null, new NodeData(currentCut, points.get(medianIndex), depth));
 
         //Process list to see where each non-median point lies
         int bound = points.size();
@@ -72,56 +81,124 @@ public class KDTree {
         return node;
     }
 
-    //build T
+    /**
+     * build  a 2DTree
+     * @param data data loaded after file readed
+     */
     public void buildTree(Data data) {
         this.setRoot(innerTreeBuilder(data.getPoints(), 0));
+        this.calculateRegions();
+
     }
 
+    /**
+     * method to calculate the region of every point using his splitting line
+     */
+    private void calculateRegions() {
+        RectangularHalfPlane halfPlane = new RectangularHalfPlane(); // Parent area to be intersected is whole area
+        root.getNodeData().setLeftRegion(halfPlane.intersectToLeft(root.getNodeData().getPoint(), 0));
+        root.getNodeData().setRightRegion(halfPlane.intersectToRight(root.getNodeData().getPoint(), 0));
+        innerCalculateRegions(root);
+    }
+
+    /**
+     * Intersects current line node's regions with its child node's regions. Store results in child nodes.
+     * @param root The node whose child's regions are going to be calculated
+     */
+    private void innerCalculateRegions(Node root) {
+        if (root.getLeftChild() != null) { // Calculate left child's regions
+            Node ls = root.getLeftChild();
+            RectangularHalfPlane latestArea = root.getNodeData().getLeftRegion();
+            ls.getNodeData().setLeftRegion(latestArea.intersectToLeft(ls.getNodeData().getPoint(), ls.getNodeData().getDepth() % 2));
+            ls.getNodeData().setRightRegion(latestArea.intersectToRight(ls.getNodeData().getPoint(), ls.getNodeData().getDepth() % 2));
+        }
+
+        if (root.getRightChild() != null) { // Calculate right child's regions
+            Node rs = root.getRightChild();
+            RectangularHalfPlane latestArea = root.getNodeData().getRightRegion();
+            rs.getNodeData().setLeftRegion(latestArea.intersectToLeft(rs.getNodeData().getPoint(), rs.getNodeData().getDepth() % 2));
+            rs.getNodeData().setRightRegion(latestArea.intersectToRight(rs.getNodeData().getPoint(), rs.getNodeData().getDepth() % 2));
+        }
+
+        //traversing the tree
+        if (root.getLeftChild() != null) {
+            innerCalculateRegions(root.getLeftChild());
+        }
+
+        if (root.getRightChild() != null) {
+            innerCalculateRegions(root.getRightChild());
+        }
+    }
+
+    /**
+     * print the tree range of search
+     * @param rectangularHalfPlane defines the search's range
+     */
+    public void printRange(RectangularHalfPlane rectangularHalfPlane) {
+        Search2DTree(root, rectangularHalfPlane);
+        out.println();
+    }
+
+    /**
+     * method using to insert new point into the tree
+     * @param point defines the points to insert
+     */
     public void insert(Point2D point){
         if (point == null){
             return;
         }
-        innerInsert(point,root,null);
+        innerInsert(point, root,null);
+
+        // re-calculate region after insertion of new point
+        innerCalculateRegions(root);
     }
 
-
+    /**
+     * internal method that operate to insert the point into the tree
+     * @param point defines the point to insert
+     * @param node defines current node during the traversing
+     * @param parent defines parent of current node . it's used to set the direction of splitting line
+     */
     private void innerInsert(Point2D point , Node node, Node parent){
+        //verify if point already exist into the tree
         if (contains(point)){
             return;
         }
+
         if (node == null && parent !=null) {
             setParentNode(parent,point);
             return;
         }
 
-        if(node.getNodeData().getDirection().equals(Direction.Leaf)){
+        if(node.getNodeData().getDirection().equals(Cut.Leaf)){
 
-            if (node.getNodeData().getDepth() % 2 == 0){
+            if (even(node.getNodeData().getDepth())){
 
-                node.getNodeData().setDirection(Direction.Vertical);
+                node.getNodeData().setDirection(Cut.Vertical); // set current node direction if depth is even to insert point
 
-                if (point.getX() <= node.getNodeData().getPoint().getX() )
-                    node.setLeftChild(new Node(null, null, node, new NodeData(Direction.Leaf, point, node.getNodeData().getDepth() + 1)));
+                if (point.getX() <= node.getNodeData().getPoint().getX() ) // setting child
+                    node.setLeftChild(new Node(null, null, node, new NodeData(Cut.Leaf, point, node.getNodeData().getDepth() + 1)));
 
                 else
-                    node.setRightChild(new Node(null, null, node, new NodeData(Direction.Leaf, point, node.getNodeData().getDepth() + 1)));
+                    node.setRightChild(new Node(null, null, node, new NodeData(Cut.Leaf, point, node.getNodeData().getDepth() + 1)));
 
                 out.println("New Node inserted" );
 
             }else {
 
-                node.getNodeData().setDirection(Direction.Horizontal);
+                node.getNodeData().setDirection(Cut.Horizontal); //set current node direction if depth is odd to insert point
 
-                if (node.getNodeData().getPoint().getY() <= point.getY())
-                    node.setLeftChild(new Node(null, null, node, new NodeData(Direction.Leaf, point, node.getNodeData().getDepth() + 1)));
+                if (node.getNodeData().getPoint().getY() <= point.getY()) // setting child
+                    node.setLeftChild(new Node(null, null, node, new NodeData(Cut.Leaf, point, node.getNodeData().getDepth() + 1)));
 
                 else
-                    node.setRightChild(new Node(null, null, node, new NodeData(Direction.Leaf, point, node.getNodeData().getDepth() + 1)));
+                    node.setRightChild(new Node(null, null, node, new NodeData(Cut.Leaf, point, node.getNodeData().getDepth() + 1)));
                 out.println("New Node inserted" );
             }
         }
 
-        else if(node.getNodeData().getDirection().equals(Direction.Vertical)){
+        // continue traversing
+        else if(node.getNodeData().getDirection().equals(Cut.Vertical)){
 
             if(point.getX() <= node.getNodeData().getPoint().getX())
                 innerInsert(point,node.getLeftChild(),node);
@@ -138,57 +215,74 @@ public class KDTree {
 
     }
 
+    /**
+     * method to insert an empty node into tree (can be ameliorated )
+     * @param parent parent's node to set
+     * @param point point to add
+     */
     private void setParentNode(Node parent,Point2D point){
-        if(parent.getNodeData().getDirection().equals(Direction.Vertical)){
+        if(parent.getNodeData().getDirection().equals(Cut.Vertical)){
 
             if(point.getX() <= parent.getNodeData().getPoint().getX())
-                parent.setLeftChild(new Node(null,null,parent,new NodeData(Direction.Leaf,point,parent.getNodeData().getDepth()+1)));
+                parent.setLeftChild(new Node(null,null,parent,new NodeData(Cut.Leaf,point,parent.getNodeData().getDepth()+1)));
 
             else
-                parent.setRightChild(new Node(null,null,parent,new NodeData(Direction.Leaf,point,parent.getNodeData().getDepth()+1)));
+                parent.setRightChild(new Node(null,null,parent,new NodeData(Cut.Leaf,point,parent.getNodeData().getDepth()+1)));
 
         }else {
 
             if(point.getY() <= parent.getNodeData().getPoint().getY())
-                parent.setLeftChild(new Node(null,null,parent,new NodeData(Direction.Leaf,point,parent.getNodeData().getDepth()+1)));
+                parent.setLeftChild(new Node(null,null,parent,new NodeData(Cut.Leaf,point,parent.getNodeData().getDepth()+1)));
+
             else
-                parent.setRightChild(new Node(null,null,parent,new NodeData(Direction.Leaf,point,parent.getNodeData().getDepth()+1)));
+                parent.setRightChild(new Node(null,null,parent,new NodeData(Cut.Leaf,point,parent.getNodeData().getDepth()+1)));
 
         }
     }
 
+    /**
+     * public method to verify if point contains
+     * @param point defines the point to search
+     * @return true is point is reached
+     */
     public boolean contains(Point2D point) {
         if (point == null) throw new IllegalArgumentException();
-        return contains(root, point);
+        return innerContains(root, point);
     }
 
-    private boolean contains(Node node, Point2D point) {
+    /**
+     *
+     * @param node defines the root tree
+     * @param point defines points to insert
+     * @return true if contains
+     */
+    private boolean innerContains(Node node, Point2D point) {
         if (node == null) return false;
 
-        if (node.getNodeData().getDirection().equals(Direction.Leaf))
+        if (node.getNodeData().getDirection().equals(Cut.Leaf))
             if (point.getX() == node.getNodeData().getPoint().getX() && point.getY() == node.getNodeData().getPoint().getY())
                 return true;
 
 
-        if (node.getNodeData().getDirection().equals(Direction.Horizontal)) {
+        if (node.getNodeData().getDirection().equals(Cut.Horizontal)) {
 
             if (point.getY() <= node.getNodeData().getPoint().getY() && point.getX() != node.getNodeData().getPoint().getX())
-                return contains(node.getLeftChild(), point);
+                return innerContains(node.getLeftChild(), point);
 
             else if (point.getY() > node.getNodeData().getPoint().getY())
-                return contains(node.getRightChild(), point);
+                return innerContains(node.getRightChild(), point);
 
             else
                 return true;
 
 
-        } else if (node.getNodeData().getDirection().equals(Direction.Vertical)) {
+        } else if (node.getNodeData().getDirection().equals(Cut.Vertical)) {
 
             if (point.getX() <= node.getNodeData().getPoint().getX() && point.getY() != node.getNodeData().getPoint().getY())
-                return contains(node.getLeftChild(), point);
+                return innerContains(node.getLeftChild(), point);
 
             else if (point.getX() > node.getNodeData().getPoint().getX())
-                return contains(node.getRightChild(), point);
+                return innerContains(node.getRightChild(), point);
             else
                 return true;
 
@@ -196,7 +290,10 @@ public class KDTree {
         return false;
     }
 
-    public void displayTree() {
+    /**
+     * draw the three
+     */
+    public void draw() {
 
         if (root == null) {
             out.println("Tree is empty!");
@@ -227,18 +324,24 @@ public class KDTree {
             return min(node.getNodeData().getPoint(), innerFindMin(node.getLeftChild(), d, depth + 1), innerFindMin(node.getRightChild(), d, depth + 1), d);
         }
     }
+
     /**
      * Returns minimum valued point in dimension d
      * @param p1 Point 1
      * @param p2 Point 2
      * @param p3 Point 3
-     * @param d Dimension, d=0: X, d=1: Y
+     * @param d defines dimensions, d=0 for  X, d=1  for Y
      * @return The minimum valued point in dimension d
      */
     private static Point2D min(Point2D p1, Point2D p2, Point2D p3, int d) {
         return getPoint(p1, p2, p3, d, p1.getX() <= p2.getX(), p1.getX() <= p3.getX(), p2.getX() <= p1.getX(), p2.getX() <= p3.getX(), p1.getY() <= p2.getY(), p1.getY() <= p3.getY(), p2.getY() <= p1.getY(), p2.getY() <= p3.getY());
     }
 
+    /**
+     *public method use to find max
+     * @param d defines dimension d=0 : X , d=1: Y
+     * @return founded max point
+     */
     public Point2D findMax(int d) {
         return innerFindMax(root, d, 0);
     }
@@ -296,6 +399,52 @@ public class KDTree {
         }
     }
 
+    /**
+     * method to find all point into a range
+     * @param root defines root of tree
+     * @param range defines the search range
+     */
+    private void Search2DTree(Node root, RectangularHalfPlane range) {
+        if (root == null) return;
+
+
+        if (root.getNodeData().getDirection() == Cut.Leaf) { // only Leaf is contained into range
+            if (range.contains(root.getNodeData().getPoint()))
+                out.print(root.getNodeData().pointFormatter() + "\n");
+        }
+        else {
+
+            if(range.contains(root.getNodeData().getPoint())){
+                out.print(root.getNodeData().pointFormatter() + "\n" );
+            }
+
+            if (range.contains(root.getNodeData().getLeftRegion())) { // Left subTree is fully contained into range, print all points.
+                depthFirstPrint(root.getLeftChild());
+            } else if (range.intersects(root.getNodeData().getLeftRegion())) { // Continue searching
+                Search2DTree(root.getLeftChild(), range);
+            }
+
+            if (range.contains(root.getNodeData().getRightRegion())) { // Right subTree is fully contained into range, print all points.
+                depthFirstPrint(root.getRightChild());
+            } else if (range.intersects(root.getNodeData().getRightRegion())) { // Continue searching
+                Search2DTree(root.getRightChild(), range);
+            }
+        }
+    }
+
+    /**
+     * preOrder writing node if subtree is fully contained
+     * @param root defines the root of tree of subTree
+     */
+    private void depthFirstPrint(Node root) {
+        if(root == null) return;
+
+        out.println(root.getNodeData().pointFormatter() + "\n");
+        depthFirstPrint(root.getLeftChild());
+        depthFirstPrint(root.getRightChild());
+
+    }
+
 
     public Node getRoot() {
         return root;
@@ -303,6 +452,15 @@ public class KDTree {
 
     public void setRoot(Node root) {
         this.root = root;
+    }
+
+    /**
+     *
+     * @param depth defines the current depth
+     * @return true if even
+     */
+    private boolean even(int depth){
+        return depth % 2 == 0;
     }
 
     @Override

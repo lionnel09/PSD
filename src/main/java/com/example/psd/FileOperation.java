@@ -10,12 +10,16 @@ import java.util.regex.Pattern;
 public class FileOperation {
 
     private List<String> list ;
+    private final String separator = File.separator;
 
+    /**
+     * method to load all data into the file
+     * @return an object data
+     */
     public Data readFile() {
         ArrayList<String> dataLines = new ArrayList<>();
         try {
-
-            File file = new File("files/firstFile.txt");
+            File file = new File("files" + separator + "firstFile.txt");
             FileReader fr = new FileReader(file);
             BufferedReader br = new BufferedReader(fr);
             String line;
@@ -52,16 +56,20 @@ public class FileOperation {
         return data;
     }
 
-    public void writeFile(Node node) {
+    /**
+     * method to write into the saving file
+     * @param root is the root of tree
+     */
+    public void writeFile(Node root) {
         list = new ArrayList<>();
 
-        if (node == null){
+        if (root == null){
             System.out.println("No record on tree");
             return;
         }
-        preOrder(node);
+        preOrder(root);
         try {
-            FileWriter myWriter = new FileWriter("/Users/lionnel/Downloads/PSD/files/recorder.txt");
+            FileWriter myWriter = new FileWriter("files" + separator + "savingFile.txt");
             myWriter.write(String.join("",list));
             myWriter.close();
             System.out.println("Successfully wrote to the file.");
@@ -71,6 +79,11 @@ public class FileOperation {
         }
     }
 
+    /**
+     * method to extract decimal value into the file using regular expression
+     * @param stringToSearch string that will be extracting
+     * @return a list of string
+     */
     public static List<String> findDecimalNums(String stringToSearch) {
 
         Pattern decimalNumPattern = Pattern.compile("-?\\d+(\\.\\d+)?");
@@ -84,13 +97,18 @@ public class FileOperation {
         return decimalNumList;
     }
 
-    private void preOrder(Node node) {
-        if (node == null){
+
+    /**
+     * method a print all node for a root to insert into the saving file
+     * @param root defines the tree's root
+     */
+    private void preOrder(Node root) {
+        if (root == null){
             return;
         }
-        list.add(String.format("%s \n", node));
-        preOrder(node.getLeftChild());
-        preOrder(node.getRightChild());
+        list.add(String.format("%s \n", root));
+        preOrder(root.getLeftChild());
+        preOrder(root.getRightChild());
 
     }
 }

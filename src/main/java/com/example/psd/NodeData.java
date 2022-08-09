@@ -4,13 +4,18 @@ import java.awt.geom.Point2D;
 
 public class NodeData {
 
-    private Direction direction;
-    private final Point2D point; // The point of node
-    private RectangularHalfPlane leftRegion; // The region of left-side of the line (closed)
-    private RectangularHalfPlane rightRegion; // The region of right-side of the line (open)
-    private final int depth; // depth of the node in tree
+    //Cut Direction
+    private Cut direction;
+    // The point of node
+    private Point2D point;
+    // The region of left-side of the line (closed)
+    private RectangularHalfPlane leftRegion;
+    // The region of right-side of the line (open)
+    private RectangularHalfPlane rightRegion;
+    // depth of the node into tree
+    private final int depth;
 
-    public NodeData(Direction direction, Point2D point, int depth) {
+    public NodeData(Cut direction, Point2D point, int depth) {
         this.direction = direction;
         this.point = point;
         this.leftRegion = null;
@@ -18,21 +23,25 @@ public class NodeData {
         this.depth = depth;
     }
 
-    public Direction getDirection() {
+    public Cut getDirection() {
         return direction;
     }
 
-    public void setDirection(Direction direction) {
+    public void setDirection(Cut direction) {
         this.direction = direction;
     }
 
     public Point2D getPoint() {
         return point;
     }
+     public void setPoint(Point2D point){
+        this.point = point;
+     }
 
     public RectangularHalfPlane getLeftRegion() {
         return leftRegion;
     }
+
 
     public void setLeftRegion(RectangularHalfPlane leftRegion) {
         this.leftRegion = leftRegion;
@@ -56,6 +65,6 @@ public class NodeData {
         return String.format("(%s,%s) : %s", point.getX(), point.getY(),direction);
     }
     public String pointFormatter(){
-        return String.format("%s, %s", point.getX(), point.getY());
+        return String.format("(%s, %s)", point.getX(), point.getY());
     }
 }

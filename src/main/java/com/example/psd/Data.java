@@ -5,10 +5,11 @@ import java.util.List;
 
 public class Data {
 
-    private String c1;
-    private String c2;
-    private int n;
-    private List<Point2D> points;
+
+    private String c1; //first criteria
+    private String c2; //second criteria
+    private int n; // number of records
+    private List<Point2D> points; // points used to build the tree
 
     public Data() {
     }

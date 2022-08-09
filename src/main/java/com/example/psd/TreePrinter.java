@@ -8,10 +8,10 @@ public class TreePrinter
 
 
     /**
-     * Print a tree
+     * draw a tree
      *
      * @param root
-     *            tree root node
+     * tree root node
      */
     public static void printTree(Node root)
     {

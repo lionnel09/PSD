@@ -37,6 +37,13 @@ public class RectangularHalfPlane {
         this.maxY = Double.MAX_VALUE;
     }
 
+    public RectangularHalfPlane(double minX , double maxX) {
+        this.minX = minX;
+        this.minY = -Double.MAX_VALUE;
+        this.maxX = maxX;
+        this.maxY = Double.MAX_VALUE;
+    }
+
     /**
      * Intersects line's left(or down) side and this half plane
      * @param line The point that a line passes through
@@ -67,12 +74,12 @@ public class RectangularHalfPlane {
      */
     public RectangularHalfPlane intersectToRight(Point2D line, int d) {
         RectangularHalfPlane temp = new RectangularHalfPlane();
-        if( d == 0) { // Vertical line // Rightside
+        if( d == 0) { // Vertical line
             temp.minX = line.getX();
             temp.maxX = this.maxX;
             temp.minY = this.minY;
             temp.maxY = this.maxY;
-        } else { // Horizontal line // Upperside
+        } else { // Horizontal line
             temp.minX = this.minX;
             temp.maxX = this.maxX;
             temp.maxY = this.maxY;
@@ -83,28 +90,28 @@ public class RectangularHalfPlane {
 
     /**
      * Checks if given point as parameter is contained in this half plane (closed)
-     * @param pnt Point to be checked
+     * @param point Point to be checked
      * @return True if point is contained, false otherwise
      */
-    public boolean contains(Point2D pnt) {
-        return (pnt.getX() <= this.maxX && pnt.getX() >= this.minX && pnt.getY() <= this.maxY && pnt.getY() >= this.minY);
+    public boolean contains(Point2D point) {
+        return (point.getX() <= this.maxX && point.getX() >= this.minX && point.getY() <= this.maxY && point.getY() >= this.minY);
     }
 
     /**
      * Checks if given half plane as parameter is contained in this half plane (closed)
-     * @param hp Half plane to be checked
+     * @param halfPlane Half plane to be checked
      * @return True if half plane is contained, false otherwise
      */
-    public boolean contains(RectangularHalfPlane hp) {
-        return (hp.maxX <= this.maxX && hp.minX >= this.minX && hp.maxY <= this.maxY && hp.minY >= this.minY);
+    public boolean contains(RectangularHalfPlane halfPlane) {
+        return (halfPlane.maxX <= this.maxX && halfPlane.minX >= this.minX && halfPlane.maxY <= this.maxY && halfPlane.minY >= this.minY);
     }
 
     /**
      * Checks if given half plane as parameter intersects with this half plane (closed)
-     * @param hp Half plane to be checked
+     * @param halfPlane Half plane to be checked
      * @return True if half planes intersect, false otherwise
      */
-    public boolean intersects(RectangularHalfPlane hp) {
-        return !(hp.maxX < this.minX || hp.minX > this.maxX || hp.maxY < this.minY || hp.minY > this.maxY);
+    public boolean intersects(RectangularHalfPlane halfPlane) {
+        return !(halfPlane.maxX < this.minX || halfPlane.minX > this.maxX || halfPlane.maxY < this.minY || halfPlane.minY > this.maxY);
     }
 }

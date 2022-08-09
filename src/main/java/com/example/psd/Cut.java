@@ -1,6 +1,9 @@
 package com.example.psd;
 
-public enum Direction {
+/**
+ * an enum to specify how the plan is cut
+ */
+public enum Cut {
     Vertical {
         public String toString() {
             return "|";
@@ -13,7 +16,7 @@ public enum Direction {
     },
     Leaf {
         public String toString() {
-            return "P";
+            return "Leaf";
         }
     }
 }
