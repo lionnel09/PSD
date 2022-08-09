@@ -87,7 +87,7 @@ public class RectangularHalfPlane {
      * @return True if point is contained, false otherwise
      */
     public boolean contains(Point2D point) {
-        return (point.getX() <= this.maxX && point.getX() >= this.minX && point.getY() <= this.maxY && point.getY() >= this.minY);
+        return (point.getX() <= this.maxX && point.getX() > this.minX && point.getY() <= this.maxY && point.getY() > this.minY);
     }
 
     /**

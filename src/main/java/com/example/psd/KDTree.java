@@ -4,6 +4,8 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.IntStream;
 
 import static java.lang.System.out;
 
@@ -17,6 +19,16 @@ public class KDTree {
     private Node root;
 
     public KDTree() {
+    }
+
+    /**
+     * build  a 2DTree
+     * @param data data loaded after file readed
+     */
+    public void buildTree(Data data) {
+        this.setRoot(innerTreeBuilder(data.getPoints(), 0));
+        this.calculateRegions();
+
     }
 
     /**
@@ -56,16 +68,14 @@ public class KDTree {
 
         //Process list to see where each non-median point lies
         int bound = points.size();
-        for (int i = 0; i < bound; i++) {
-            if (i != medianIndex) {
-                Point2D p = points.get(i);
-                if (i < medianIndex)
-                    leftPoints.add(p);
+        IntStream.range(0, bound).filter(i -> i != medianIndex).forEachOrdered(i -> {
+            Point2D p = points.get(i);
+            if (i < medianIndex)
+                leftPoints.add(p);
 
-                else
-                    rightPoints.add(p);
-            }
-        }
+            else
+                rightPoints.add(p);
+        });
 
         if (leftPoints.size() > 0) {
 
@@ -79,16 +89,6 @@ public class KDTree {
         }
 
         return node;
-    }
-
-    /**
-     * build  a 2DTree
-     * @param data data loaded after file readed
-     */
-    public void buildTree(Data data) {
-        this.setRoot(innerTreeBuilder(data.getPoints(), 0));
-        this.calculateRegions();
-
     }
 
     /**
@@ -130,14 +130,7 @@ public class KDTree {
         }
     }
 
-    /**
-     * print the tree range of search
-     * @param rectangularHalfPlane defines the search's range
-     */
-    public void printRange(RectangularHalfPlane rectangularHalfPlane) {
-        Search2DTree(root, rectangularHalfPlane);
-        out.println();
-    }
+
 
     /**
      * method using to insert new point into the tree
@@ -170,7 +163,7 @@ public class KDTree {
             return;
         }
 
-        if(node.getNodeData().getDirection().equals(Cut.Leaf)){
+        if(Objects.requireNonNull(node).getNodeData().getDirection().equals(Cut.Leaf)){
 
             if (even(node.getNodeData().getDepth())){
 
@@ -400,11 +393,21 @@ public class KDTree {
     }
 
     /**
+     * print the tree range of search
+     * @param rectangularHalfPlane defines the search's range
+     */
+    public void printRange(RectangularHalfPlane rectangularHalfPlane) {
+        search2DTree(root, rectangularHalfPlane);
+        out.println();
+    }
+
+    /**
      * method to find all point into a range
      * @param root defines root of tree
      * @param range defines the search range
      */
-    private void Search2DTree(Node root, RectangularHalfPlane range) {
+    private void search2DTree(Node root, RectangularHalfPlane range) {
+
         if (root == null) return;
 
 
@@ -421,13 +424,13 @@ public class KDTree {
             if (range.contains(root.getNodeData().getLeftRegion())) { // Left subTree is fully contained into range, print all points.
                 preOrderNodePrinter(root.getLeftChild());
             } else if (range.intersects(root.getNodeData().getLeftRegion())) { // Continue searching
-                Search2DTree(root.getLeftChild(), range);
+                search2DTree(root.getLeftChild(), range);
             }
 
             if (range.contains(root.getNodeData().getRightRegion())) { // Right subTree is fully contained into range, print all points.
                 preOrderNodePrinter(root.getRightChild());
             } else if (range.intersects(root.getNodeData().getRightRegion())) { // Continue searching
-                Search2DTree(root.getRightChild(), range);
+                search2DTree(root.getRightChild(), range);
             }
         }
     }

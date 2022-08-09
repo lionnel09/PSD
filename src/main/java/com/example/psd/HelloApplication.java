@@ -76,7 +76,7 @@ public class HelloApplication {
             case 1 -> {
                 comparatorValue = compareValue();
                 if (comparatorValue.isValid())
-                    return new RectangularHalfPlane(comparatorValue.getLower(),-Double.MAX_VALUE, comparatorValue.getUpper(),Double.MAX_VALUE);
+                    return new RectangularHalfPlane(comparatorValue.getLower(),-Double.MAX_VALUE, comparatorValue.getUpper(),Double.MAX_VALUE); // insert in rectangle lower x bound  and upper x bound
                 out.println("invalid input");
             }
             case 2 -> {
