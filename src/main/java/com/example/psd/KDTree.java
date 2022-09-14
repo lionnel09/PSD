@@ -23,7 +23,7 @@ public class KDTree {
 
     /**
      * build  a 2DTree
-     * @param data data loaded after file readed
+     * @param data data loaded after file read
      */
     public void buildTree(Data data) {
         this.setRoot(innerTreeBuilder(data.getPoints(), 0));
@@ -137,9 +137,11 @@ public class KDTree {
      * @param point defines the points to insert
      */
     public void insert(Point2D point){
-        if (point == null){
+        //TODO re-test
+        if (point == null || contains(point)){
             return;
         }
+
         innerInsert(point, root,null);
 
         // re-calculate region after insertion of new point
@@ -153,10 +155,10 @@ public class KDTree {
      * @param parent defines parent of current node . it's used to set the direction of splitting line
      */
     private void innerInsert(Point2D point , Node node, Node parent){
-        //verify if point already exist into the tree
-        if (contains(point)){
-            return;
-        }
+
+//        if (contains(point)){
+//            return;
+//        }
 
         if (node == null && parent !=null) {
             setParentNode(parent,point);
@@ -402,14 +404,13 @@ public class KDTree {
     }
 
     /**
-     * method to find all point into a range
+     * method to find all point into query rectangle
      * @param root defines root of tree
      * @param range defines the search range
      */
     private void search2DTree(Node root, RectangularHalfPlane range) {
 
         if (root == null) return;
-
 
         if (root.getNodeData().getDirection() == Cut.Leaf) { // only Leaf is contained into range
             if (range.contains(root.getNodeData().getPoint()))
